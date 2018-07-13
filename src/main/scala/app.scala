@@ -26,12 +26,16 @@ import io.grpc._
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
 import scala.concurrent.ExecutionContext.Implicits.global
 import io.grpc.Metadata
+import io.grpc.auth.{ClientAuthInterceptor, MoreCallCredentials};
+import java.util.concurrent.Executors
 
 object Gappp extends App {
   val OAUTH2_SCOPES = List("https://www.googleapis.com/auth/cloud-platform").asJava
   def channel(host: String, port: Int): ManagedChannel = {
     val creds = GoogleCredentials.getApplicationDefault().createScoped(OAUTH2_SCOPES)
-    ManagedChannelBuilder.forAddress(host, port).build
+    ManagedChannelBuilder.forAddress(host, port)
+      .intercept(new ClientAuthInterceptor(creds, Executors.newSingleThreadExecutor()))
+      .build
   }
 
   val managedChannelStream: Stream[IO, ManagedChannel] =
@@ -50,7 +54,7 @@ object Gappp extends App {
 
   val managedChannel = channel("datastore.googleapis.com", 443)
   val service = com.google.datastore.v1.datastore.DatastoreFs2Grpc.stub[IO](managedChannel)
-  val rqr: RunQueryRequest = RunQueryRequest(queryType = DQuery(q))
+  val rqr: RunQueryRequest = RunQueryRequest("broad-dsde-cromwell-dev", queryType = DQuery(q))
   val response = service.runQuery(rqr, new Metadata()).unsafeRunSync
   println(response)
 }
