@@ -1,4 +1,0 @@
-[submodule "googleapis"]
-	path = googleapis
-	url = git@github.com:danbills/googleapis.git
-	branch = fix_for_fs2_google
