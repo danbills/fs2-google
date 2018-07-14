@@ -11,3 +11,6 @@ libraryDependencies ++= Seq(
      "io.grpc" % "grpc-auth" % "1.12.0",
      "io.netty" % "netty-tcnative-boringssl-static" % "2.0.7.Final",
 )
+
+PB.protocVersion := "-v360"
+
